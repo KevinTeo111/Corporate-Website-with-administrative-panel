@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Supabase Postgres. DATABASE_URL points to the transaction pooler (port 6543,
+// pgbouncer=true); DIRECT_URL to the direct connection (port 5432) used by
+// migrations, db push and the seed.
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum CategoryKind {
+  COMPANY
+  SERVICE
+}
+
+enum RoomMode {
+  RENT
+  SALE
+  BOTH
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AdGroup {
+  HOME
+  DIRECTORY
+}
+
+model Category {
+  id        String       @id @default(cuid())
+  name      String
+  slug      String       @unique
+  kind      CategoryKind @default(COMPANY)
+  icon      String?
+  order     Int          @default(0)
+  companies Company[]
+}
+
+model Specialty {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  companies     Company[]
+  professionals Professional[]
+}
+
+model Company {
+  id            String                @id @default(cuid())
+  externalId    String                @unique
+  name          String
+  slug          String                @unique
+  description   String
+  logoUrl       String?
+  photos        String[]
+  categoryId    String
+  category      Category              @relation(fields: [categoryId], references: [id])
+  specialties   Specialty[]
+  room          String
+  floor         Int
+  hours         String
+  phone         String
+  whatsapp      String
+  instagram     String?
+  website       String?
+  active        Boolean               @default(true)
+  featured      Boolean               @default(false)
+  professionals ProfessionalCompany[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([categoryId])
+  @@index([active, floor])
+}
+
+model Professional {
+  id           String                @id @default(cuid())
+  externalId   String                @unique
+  name         String
+  slug         String                @unique
+  council      String
+  registration String
+  uf           String
+  bio          String?
+  photoUrl     String?
+  active       Boolean               @default(true)
+  specialties  Specialty[]
+  companies    ProfessionalCompany[]
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+}
+
+model ProfessionalCompany {
+  professionalId  String
+  companyId       String
+  contactPhone    String?
+  contactWhatsapp String?
+  professional    Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  company         Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([professionalId, companyId])
+}
+
+model Room {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  title           String
+  floor           Int
+  areaM2          Float
+  description     String
+  features        String[]
+  photos          String[]
+  mode            RoomMode @default(RENT)
+  available       Boolean  @default(true)
+  contactName     String
+  contactPhone    String
+  contactWhatsapp String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model RoomLead {
+  id           String     @id @default(cuid())
+  name         String
+  email        String
+  whatsapp     String
+  mode         RoomMode
+  desiredArea  String?
+  activityArea String?
+  notes        String?
+  consent      Boolean    @default(false)
+  status       LeadStatus @default(NEW)
+  createdAt    DateTime   @default(now())
+
+  @@index([status, createdAt])
+}
+
+model Article {
+  id          String        @id @default(cuid())
+  title       String
+  slug        String        @unique
+  excerpt     String
+  coverUrl    String?
+  body        String
+  author      String
+  category    String
+  status      ArticleStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+model Faq {
+  id       String  @id @default(cuid())
+  question String
+  answer   String
+  order    Int     @default(0)
+  active   Boolean @default(true)
+}
+
+model Banner {
+  id       String  @id @default(cuid())
+  title    String
+  subtitle String?
+  imageUrl String
+  link     String?
+  order    Int     @default(0)
+  active   Boolean @default(true)
+}
+
+model Ad {
+  id           String    @id @default(cuid())
+  advertiser   String
+  imageDesktop String
+  imageMobile  String
+  link         String
+  group        AdGroup
+  position     Int       @default(1)
+  startsAt     DateTime?
+  endsAt       DateTime?
+  active       Boolean   @default(true)
+  clicks       Int       @default(0)
+  createdAt    DateTime  @default(now())
+
+  @@index([group, active])
+}
+
+model AdInquiry {
+  id        String   @id @default(cuid())
+  name      String
+  company   String
+  email     String
+  whatsapp  String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model AdminUser {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  logs         ActivityLog[]
+}
+
+model ActivityLog {
+  id        String     @id @default(cuid())
+  userId    String?
+  user      AdminUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName  String
+  action    String
+  entity    String
+  entityId  String?
+  detail    String?
+  createdAt DateTime   @default(now())
+
+  @@index([createdAt])
+}
+
+model ImportBatch {
+  id        String   @id @default(cuid())
+  filename  String
+  kind      String
+  total     Int
+  inserted  Int
+  skipped   Int
+  report    Json
+  userName  String
+  createdAt DateTime @default(now())
+}

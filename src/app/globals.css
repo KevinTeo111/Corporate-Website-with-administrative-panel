@@ -1,0 +1,125 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: var(--font-fraunces), "Georgia", serif;
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --color-pine-950: #062321;
+  --color-pine-900: #0a302d;
+  --color-pine-800: #0e3f3a;
+  --color-pine-700: #145249;
+  --color-pine-600: #1f6a5e;
+  --color-pine-500: #2b8474;
+  --color-pine-400: #4fa593;
+  --color-pine-300: #8cc9b8;
+  --color-pine-200: #c3e5d8;
+  --color-pine-100: #e2f2ea;
+  --color-pine-50: #f1f9f5;
+
+  --color-coral-700: #b8461f;
+  --color-coral-600: #d5552b;
+  --color-coral-500: #e4643b;
+  --color-coral-400: #ee8a67;
+  --color-coral-200: #f8cfbf;
+  --color-coral-100: #fbe3d8;
+  --color-coral-50: #fdf2ec;
+
+  --color-sand-300: #e5dfd3;
+  --color-sand-200: #efeae0;
+  --color-sand-100: #f6f2ea;
+  --color-sand-50: #fbf9f4;
+
+  --color-ink-900: #16211f;
+  --color-ink-700: #33413e;
+  --color-ink-500: #5c6b67;
+  --color-ink-300: #9aa6a2;
+
+  --shadow-soft: 0 1px 2px rgba(22, 33, 31, 0.04), 0 8px 24px -12px rgba(22, 33, 31, 0.18);
+  --shadow-lift: 0 2px 4px rgba(22, 33, 31, 0.05), 0 20px 40px -20px rgba(22, 33, 31, 0.28);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-sand-50 text-ink-900 font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: var(--color-pine-200);
+  }
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+}
+
+@utility container-x {
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pine-500 focus-visible:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none;
+}
+@utility btn-primary {
+  @apply btn bg-pine-800 text-white hover:bg-pine-700 active:scale-[0.98];
+}
+@utility btn-accent {
+  @apply btn bg-coral-500 text-white hover:bg-coral-600 active:scale-[0.98];
+}
+@utility btn-ghost {
+  @apply btn bg-white/70 text-pine-900 ring-1 ring-sand-300 hover:bg-white hover:ring-pine-300;
+}
+@utility btn-sm {
+  @apply px-3.5 py-1.5 text-xs;
+}
+@utility chip {
+  @apply inline-flex items-center gap-1.5 rounded-full border border-sand-300 bg-white px-3 py-1 text-xs font-medium text-ink-700 transition-colors hover:border-pine-300 hover:text-pine-800;
+}
+@utility chip-active {
+  @apply border-pine-800 bg-pine-800 text-white hover:bg-pine-700 hover:text-white;
+}
+@utility card {
+  @apply rounded-2xl border border-sand-300/80 bg-white shadow-soft;
+}
+@utility card-hover {
+  @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lift hover:border-pine-200;
+}
+@utility input {
+  @apply w-full rounded-xl border border-sand-300 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-300 transition-colors focus:border-pine-500 focus:outline-none focus:ring-2 focus:ring-pine-200;
+}
+@utility label {
+  @apply mb-1.5 block text-xs font-semibold uppercase tracking-wide text-ink-500;
+}
+@utility eyebrow {
+  @apply text-xs font-bold uppercase tracking-[0.18em] text-pine-600;
+}
+
+@layer components {
+  .prose-article :is(h2, h3) {
+    @apply font-display mt-8 mb-3 text-2xl text-pine-900;
+  }
+  .prose-article p {
+    @apply mb-4 text-[17px] leading-8 text-ink-700;
+  }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes ken-burns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+.animate-fade-up { animation: fade-up 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.animate-ken-burns { animation: ken-burns 12s ease-out both; }
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up, .animate-ken-burns { animation: none; }
+}
